@@ -1,0 +1,43 @@
+# BIRD dev under data/bird/  (dev.json + dev_databases/)
+data_root: data/bird
+out_dir: results
+
+# Each model points at an OpenAI-compatible endpoint.
+# On-prem: start a vLLM server per model, e.g.
+#   vllm serve Qwen/Qwen2.5-Coder-32B-Instruct --port 8000
+models:
+  # Local on Apple Silicon via Ollama (Metal GPU). Good up to ~14B on 24GB RAM.
+  ollama-qwen25-coder-7b:
+    model: qwen2.5-coder:7b
+    base_url: http://localhost:11434/v1
+    api_key: ollama
+    max_tokens: 1024
+  ollama-qwen25-coder-14b:
+    model: qwen2.5-coder:14b
+    base_url: http://localhost:11434/v1
+    api_key: ollama
+    max_tokens: 1024
+  ollama-gemma3-12b:
+    model: gemma3:12b
+    base_url: http://localhost:11434/v1
+    api_key: ollama
+    max_tokens: 1024
+
+  qwen25-coder-32b:
+    model: Qwen/Qwen2.5-Coder-32B-Instruct
+    base_url: http://localhost:8000/v1
+    max_tokens: 1024
+  qwen25-coder-14b:
+    model: Qwen/Qwen2.5-Coder-14B-Instruct
+    base_url: http://localhost:8001/v1
+  qwen25-coder-7b:
+    model: Qwen/Qwen2.5-Coder-7B-Instruct
+    base_url: http://localhost:8002/v1
+  gemma3-27b:
+    model: google/gemma-3-27b-it
+    base_url: http://localhost:8003/v1
+  # Cloud reference line (fill in real endpoint + key via env at run time).
+  cloud-ref:
+    model: gpt-4o
+    base_url: https://api.openai.com/v1
+    api_key: ${OPENAI_API_KEY}

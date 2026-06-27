@@ -1,0 +1,12 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "n": 1534,
+  "ex_accuracy": 0.3931,
+  "config": {
+    "schema_link": true,
+    "self_correct": false,
+    "self_consistency": false
+  },
+  "concurrency": 64,
+  "results_file": "results/qwen25-coder-7b.link.jsonl"
+}

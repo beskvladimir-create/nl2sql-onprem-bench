@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this benchmark or code, please cite it."
+title: "nl2sql-onprem-bench: an honest, reproducible benchmark of on-prem open-weight LLMs for Text-to-SQL"
+type: software
+authors:
+  - family-names: Beskorovainyi
+    given-names: Vladimir
+    orcid: "https://orcid.org/0009-0004-7005-6242"
+version: "0.1.0"
+license: MIT
+repository-code: "https://github.com/beskvladimir-create/nl2sql-onprem-bench"
+keywords:
+  - text-to-sql
+  - nl2sql
+  - BIRD
+  - large-language-models
+  - benchmark
+  - on-premise

@@ -1,0 +1,11 @@
+{
+  "model": "gemma3:12b",
+  "n": 20,
+  "ex_accuracy": 0.25,
+  "config": {
+    "schema_link": false,
+    "self_correct": false,
+    "self_consistency": false
+  },
+  "results_file": "results/ollama-gemma3-12b.base.jsonl"
+}
