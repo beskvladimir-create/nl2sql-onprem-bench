@@ -1,0 +1,17 @@
+{
+  "model": "meta-llama/Llama-3.3-70B-Instruct",
+  "n": 1534,
+  "ex_accuracy": 0.4557,
+  "config": {
+    "schema_link": true,
+    "schema_link_emb": false,
+    "emb_top_k": 5,
+    "self_correct": false,
+    "self_consistency": false
+  },
+  "wall_s": 324.47,
+  "queries_per_s": 4.728,
+  "mean_table_recall": 0.9395,
+  "concurrency": 24,
+  "results_file": "results/llama-3.3-70b.link.jsonl"
+}
