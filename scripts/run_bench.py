@@ -23,6 +23,9 @@ ABLATION = [
     ("link", dict(schema_link=True, self_correct=False, self_consistency=False)),
     ("link_correct", dict(schema_link=True, self_correct=True, self_consistency=False)),
     ("link_correct_consistency", dict(schema_link=True, self_correct=True, self_consistency=True)),
+    # retrieval-based (embedding) schema linker, for the lexical-vs-embedding comparison
+    ("link_emb", dict(schema_link_emb=True, self_correct=False, self_consistency=False)),
+    ("link_emb_correct", dict(schema_link_emb=True, self_correct=True, self_consistency=False)),
 ]
 
 
@@ -35,6 +38,8 @@ def main() -> None:
                     help="subset of ablation stage names; default all")
     ap.add_argument("--concurrency", type=int, default=None,
                     help="examples processed in parallel; overrides config")
+    ap.add_argument("--emb-top-k", type=int, default=5,
+                    help="top-k tables for the embedding schema linker (link_emb stages)")
     args = ap.parse_args()
 
     with open(args.config) as f:
@@ -54,8 +59,11 @@ def main() -> None:
     stages = [s for s in ABLATION if args.stages is None or s[0] in args.stages]
     for name, flags in stages:
         out = os.path.join(out_dir, f"{args.model}.{name}.jsonl")
+        run_flags = dict(flags)
+        if run_flags.get("schema_link_emb"):
+            run_flags["emb_top_k"] = args.emb_top_k
         summary = run(data_root, client, out, limit=args.limit,
-                      concurrency=concurrency, **flags)
+                      concurrency=concurrency, **run_flags)
         print(json.dumps(summary, indent=2))
 
 

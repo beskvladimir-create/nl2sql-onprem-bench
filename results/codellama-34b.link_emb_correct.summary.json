@@ -1,0 +1,17 @@
+{
+  "model": "codellama/CodeLlama-34b-Instruct-hf",
+  "n": 1534,
+  "ex_accuracy": 0.264,
+  "config": {
+    "schema_link": false,
+    "schema_link_emb": true,
+    "emb_top_k": 6,
+    "self_correct": true,
+    "self_consistency": false
+  },
+  "wall_s": 675.9,
+  "queries_per_s": 2.27,
+  "mean_table_recall": 0.9543,
+  "concurrency": 64,
+  "results_file": "results/codellama-34b.link_emb_correct.jsonl"
+}

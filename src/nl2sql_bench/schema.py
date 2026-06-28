@@ -65,3 +65,83 @@ def link_schema(db_path: str, question: str, evidence: str = "") -> list[str]:
             kept.append(t)
     # Fallback: if nothing matched, keep everything rather than starve the model.
     return kept or list(schema.keys())
+
+
+# --- retrieval-based (embedding) schema linker -------------------------------
+# Rehabilitated comparison vs the lexical linker: embed each table (name + its
+# column names) and the question+evidence with a sentence-transformer, keep the
+# top-k tables by cosine similarity. Heavy deps (sentence-transformers, torch)
+# are imported lazily so the rest of the harness runs without them.
+
+_EMB_MODEL = None
+_EMB_CACHE: dict[str, tuple] = {}  # db_path -> (table_names, table_matrix)
+
+
+def _get_embedder(model_name: str = "all-MiniLM-L6-v2"):
+    global _EMB_MODEL
+    if _EMB_MODEL is None:
+        from sentence_transformers import SentenceTransformer
+        _EMB_MODEL = SentenceTransformer(model_name)
+    return _EMB_MODEL
+
+
+def _table_doc(name: str, cols: list[str]) -> str:
+    return f"{name}: " + ", ".join(cols)
+
+
+def _db_table_embeddings(db_path: str, model_name: str):
+    """(table_names, normalized embedding matrix) for a db, cached per process."""
+    if db_path in _EMB_CACHE:
+        return _EMB_CACHE[db_path]
+    import numpy as np
+    conn = sqlite3.connect(db_path)
+    try:
+        schema = _tables(conn)
+    finally:
+        conn.close()
+    names = list(schema.keys())
+    docs = [_table_doc(t, schema[t]) for t in names]
+    emb = _get_embedder(model_name).encode(docs, normalize_embeddings=True)
+    emb = np.asarray(emb, dtype="float32")
+    _EMB_CACHE[db_path] = (names, emb)
+    return names, emb
+
+
+def link_schema_emb(
+    db_path: str, question: str, evidence: str = "", k: int = 5,
+    model_name: str = "all-MiniLM-L6-v2",
+) -> list[str]:
+    """Top-k tables by cosine similarity between table docs and question+evidence."""
+    import numpy as np
+    names, emb = _db_table_embeddings(db_path, model_name)
+    if len(names) <= k:
+        return names
+    q = _get_embedder(model_name).encode(
+        [f"{question} {evidence}".strip()], normalize_embeddings=True
+    )
+    q = np.asarray(q, dtype="float32")[0]
+    sims = emb @ q  # cosine (both already normalized)
+    idx = np.argsort(-sims)[:k]
+    return [names[i] for i in idx]
+
+
+# --- gold-table recall (linker evaluation, model-free) -----------------------
+
+_GOLD_TBL = re.compile(r"\b(?:from|join)\s+[`\"\[]?([A-Za-z_][A-Za-z0-9_]*)", re.IGNORECASE)
+_SQL_KW = {"select", "where", "group", "order", "by", "having", "on", "as",
+           "and", "or", "limit", "distinct", "count", "sum", "avg", "min", "max"}
+
+
+def gold_tables(sql: str) -> set[str]:
+    """Best-effort set of table names referenced in a (gold) SQL query."""
+    cands = {m.lower() for m in _GOLD_TBL.findall(sql)}
+    return {t for t in cands if t not in _SQL_KW}
+
+
+def table_recall(kept: list[str], gold_sql: str) -> float | None:
+    """Fraction of gold tables retained by the linker (None if no gold tables found)."""
+    gold = gold_tables(gold_sql)
+    if not gold:
+        return None
+    keptl = {t.lower() for t in kept}
+    return len(gold & keptl) / len(gold)

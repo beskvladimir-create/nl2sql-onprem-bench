@@ -1,0 +1,17 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
+  "n": 1534,
+  "ex_accuracy": 0.3657,
+  "config": {
+    "schema_link": true,
+    "schema_link_emb": false,
+    "emb_top_k": 5,
+    "self_correct": false,
+    "self_consistency": false
+  },
+  "wall_s": 515.55,
+  "queries_per_s": 2.975,
+  "mean_table_recall": 0.9395,
+  "concurrency": 24,
+  "results_file": "results/qwen25-coder-32b-api.link.jsonl"
+}

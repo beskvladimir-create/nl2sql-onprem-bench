@@ -16,9 +16,11 @@ import sqlite3
 from collections import Counter
 from dataclasses import dataclass, field
 
+from func_timeout import FunctionTimedOut, func_timeout
+
 from .evaluator import _exec
 from .model_client import ModelClient
-from .schema import link_schema, serialize_schema
+from .schema import link_schema, link_schema_emb, serialize_schema
 
 _SQL_BLOCK = re.compile(r"```(?:sql)?\s*(.*?)```", re.DOTALL | re.IGNORECASE)
 
@@ -73,6 +75,9 @@ class Usage:
 class Recipe:
     client: ModelClient
     schema_link: bool = False
+    schema_link_emb: bool = False
+    emb_top_k: int = 5
+    emb_model: str = "all-MiniLM-L6-v2"
     self_correct: bool = False
     self_consistency: bool = False
     correct_iters: int = 2
@@ -80,24 +85,45 @@ class Recipe:
     sample_temperature: float = 0.6
     exec_timeout: float = 30.0
     usage: Usage = field(default_factory=Usage)
+    linked_tables: list[str] | None = None  # tables kept by the active linker (for recall)
 
     def _schema_text(self, db_path: str, question: str, evidence: str) -> str:
+        # embedding linker takes precedence over the lexical one when both set
+        if self.schema_link_emb:
+            tables = link_schema_emb(db_path, question, evidence,
+                                     k=self.emb_top_k, model_name=self.emb_model)
+            self.linked_tables = tables
+            return serialize_schema(db_path, tables)
         if self.schema_link:
             tables = link_schema(db_path, question, evidence)
+            self.linked_tables = tables
             return serialize_schema(db_path, tables)
         return serialize_schema(db_path)
 
     def _error_of(self, db_path: str, sql: str) -> str | None:
-        """Return an error string if the SQL fails to execute, else None."""
+        """Return an error string if the SQL fails to execute, else None.
+
+        Time-bounded: a runaway predicted query (e.g. an accidental cross join)
+        must not hang the self-correct loop forever. A timeout is reported as an
+        error so the model gets a repair signal AND the thread is freed.
+        """
         self.usage.exec_calls += 1
-        try:
+
+        def _try() -> None:
             conn = sqlite3.connect(db_path)
             try:
                 conn.execute(sql).fetchall()
             finally:
                 conn.close()
+
+        try:
+            func_timeout(self.exec_timeout, _try)
             return None
+        except FunctionTimedOut:
+            return f"query exceeded {self.exec_timeout}s time limit"
         except sqlite3.Error as e:
+            return str(e)
+        except Exception as e:  # malformed SQL can raise non-sqlite errors too
             return str(e)
 
     def _generate(self, schema: str, question: str, evidence: str, temp: float) -> str:
