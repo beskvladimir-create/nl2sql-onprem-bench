@@ -1,9 +1,13 @@
 __pycache__/
 *.pyc
 .venv/
+.venv_api/
+venv/
 .env
+.secrets/
+.DS_Store
+.pytest_cache/
+# BIRD data is not redistributed here (download from bird-bench.github.io)
 data/bird/
 *.sqlite
-.DS_Store
-.secrets/
-.venv_api/
+# results/*.jsonl and *.summary.json ARE tracked (committed predictions)
