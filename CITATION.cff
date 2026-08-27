@@ -1,18 +1,44 @@
 cff-version: 1.2.0
-message: "If you use this benchmark or code, please cite it."
-title: "nl2sql-onprem-bench: an honest, reproducible benchmark of on-prem open-weight LLMs for Text-to-SQL"
+message: "If you use this benchmark or code, please cite it as below."
+title: "nl2sql-onprem-bench: an honest, reproducible benchmark of on-prem open-weight LLMs for Text-to-SQL on BIRD"
+abstract: >-
+  A reproducible harness and results for evaluating privately deployable
+  open-weight LLMs on the BIRD dev split (n=1534, Execution Accuracy). Covers
+  three model families across two generations under one matched protocol:
+  Qwen2.5-Coder (7B/14B/32B) and CodeLlama-Instruct (7B/13B/34B) served on-prem
+  with vLLM in fp16, and Llama-3.x (8B/70B) on a matched FP8 API serving. A
+  model-agnostic recipe (schema linking, self-correction, self-consistency) is
+  ablated component by component, with lexical and embedding schema linkers
+  compared at matched gold-table recall, real wall-clock cost per stage, and
+  every difference tested by the paired exact McNemar test. Reports the
+  size x technique frontier, including negative results.
 type: software
 authors:
-  - family-names: Beskorovainyi
-    given-names: Vladimir
+  - given-names: Vladimir
+    family-names: Beskorovainyi
     orcid: "https://orcid.org/0009-0004-7005-6242"
-version: "0.1.0"
+    affiliation: "Besk Tech; Moscow Institute of Physics and Technology (MIPT)"
+version: "1.1.0"
+date-released: "2026-06-28"
 license: MIT
+doi: "10.5281/zenodo.20952794"
 repository-code: "https://github.com/beskvladimir-create/nl2sql-onprem-bench"
 keywords:
-  - text-to-sql
-  - nl2sql
+  - text-to-SQL
+  - NL2SQL
   - BIRD
-  - large-language-models
+  - large language models
+  - on-premises
+  - open-weight models
+  - reproducibility
   - benchmark
-  - on-premise
+preferred-citation:
+  type: article
+  title: "How Far Do On-Prem Open LLMs Get on Text-to-SQL? A Cross-Family Size x Technique Frontier on BIRD"
+  authors:
+    - given-names: Vladimir
+      family-names: Beskorovainyi
+      orcid: "https://orcid.org/0009-0004-7005-6242"
+  year: 2026
+  journal: "arXiv preprint arXiv:2606.29733"
+  url: "https://arxiv.org/abs/2606.29733"

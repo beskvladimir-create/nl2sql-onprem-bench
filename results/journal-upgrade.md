@@ -81,6 +81,11 @@ linking-is-dominated result now holds across **three families and two generation
 | CodeLlama-34B lexical->embedding link | -0.45 | 0.55 | ns |
 | Qwen-32B base->+correct | +1.24 | 0.0013 | significant |
 | Qwen-32B base->link(lexical) | -1.56 | 0.035 | significant |
+| Llama-3.1-8B base->+correct | +3.65 | 6e-11 | significant |
+| Llama-3.3-70B base->+correct | +1.04 | 0.08 | ns |
+| Llama-3.1-8B base->link(lexical) | -1.76 | 0.03 | significant (hurts) |
+| Llama-3.3-70B base->link(lexical) | -3.65 | 1.4e-06 | significant (hurts) |
+| Qwen-32B +correct->+consistency | +0.13 | 0.86 | ns |
 
 ## Positioning vs published numbers
 
@@ -111,4 +116,12 @@ on-prem baseline, not a harness artifact. (Exact citations to be inserted.)
 - The embedding (retrieval) schema-linker was evaluated on CodeLlama-34B (on-prem) and on Qwen-32B (on a matched FP8 API serving). In both cases it fails to significantly beat the no-linking baseline and is statistically indistinguishable from the lexical linker (CodeLlama-34B lexical-vs-embedding p=0.55; Qwen-32B p=0.09), despite higher gold-table recall (96.5%). This rules out the "weak lexical strawman" objection.
 - The Qwen-32B embedding comparison was run on a quantized (FP8) API endpoint because re-serving fp16 on-prem was not cost-justified; absolute EX there is ~13 pp below our fp16 numbers, so that block is reported on its own matched serving and is not mixed with the fp16 headline table. The conclusion is relative (linking does not help) and holds on both servings.
 - **Recency confound (addressed).** CodeLlama (2023) predates Qwen2.5-Coder (2024). To isolate generation from family we added a third, same-generation family, Llama-3.x (2024, Sec. 2b): a modern non-Qwen model (Llama-3.3-70B) is competitive on a matched serving, and the recipe trends replicate, so the large CodeLlama gap is attributable to generation, not family. Remaining caveat: the Llama block is on an FP8 API serving (relative claims only), and a same-generation *code-specialized* family (e.g. DeepSeek-Coder-V2) on fp16 would tighten the absolute size-vs-family comparison further.
+- **Schema width (scope of the linking result).** BIRD's databases have relatively
+  narrow schemas, so the prompt is rarely the context bottleneck and pruning mostly
+  costs recall. The linking result is therefore scoped, not universal: on genuinely
+  wide enterprise schemas (hundreds of tables, where the full schema does not fit the
+  context at all) retrieval/routing is a *feasibility requirement* rather than an
+  accuracy technique, and we expect linking to help. Not measured here; see the paper's
+  Discussion ("revisit linking for genuinely wide schemas") and Limitations (iii).
+
 - **Single prompt template / single benchmark.** All runs use one zero-shot prompt and BIRD dev only; prompt-sensitivity and generalization to a second benchmark (e.g. Spider) are not measured here and are natural follow-ups.
