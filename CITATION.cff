@@ -18,10 +18,10 @@ authors:
     family-names: Beskorovainyi
     orcid: "https://orcid.org/0009-0004-7005-6242"
     affiliation: "Besk Tech; Moscow Institute of Physics and Technology (MIPT)"
-version: "1.1.0"
-date-released: "2026-06-28"
+version: "0.2.0"
+date-released: "2026-09-25"
 license: MIT
-doi: "10.5281/zenodo.20952794"
+doi: "10.5281/zenodo.20952793"
 repository-code: "https://github.com/beskvladimir-create/nl2sql-onprem-bench"
 keywords:
   - text-to-SQL

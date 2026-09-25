@@ -14,7 +14,8 @@ Every claim is tested with the paired exact McNemar test.
 **Paper:** *How Far Do On-Prem Open LLMs Get on Text-to-SQL? A Cross-Family
 Size×Technique Frontier on BIRD*, [arXiv:2606.29733](https://arxiv.org/abs/2606.29733)
 (29 Jun 2026). Archived code/results: **Zenodo DOI
-[10.5281/zenodo.20952794](https://doi.org/10.5281/zenodo.20952794)**.
+[10.5281/zenodo.20952793](https://doi.org/10.5281/zenodo.20952793)**
+(concept DOI, always resolves to the latest archived release).
 
 ## Status
 Results available for **three model families across two generations**, all on full
@@ -179,7 +180,10 @@ Paper:
 }
 ```
 Code and results: see `CITATION.cff`, archived at Zenodo DOI
-[10.5281/zenodo.20952794](https://doi.org/10.5281/zenodo.20952794).
+[10.5281/zenodo.20952793](https://doi.org/10.5281/zenodo.20952793).
+That is the concept DOI and it always points at the newest release. The v0.1.0
+snapshot (10.5281/zenodo.20952794) carries the Qwen2.5-Coder family only; the
+CodeLlama and Llama-3.x results landed in v0.2.0.
 
 ## IP / scope
 New code, public BIRD data only. No client data, prompts, or systems.
