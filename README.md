@@ -188,4 +188,6 @@ CodeLlama and Llama-3.x results landed in v0.2.0.
 ## IP / scope
 New code, public BIRD data only. No client data, prompts, or systems.
 Author: Vladimir Beskorovainyi (ORCID 0009-0004-7005-6242 / besk.tech).
-License: MIT (see `LICENSE`).
+License: MIT (see `LICENSE`). The license covers the benchmark harness and result files in this
+repository. The BIRD dataset is NOT included and is distributed by its authors
+under its own terms; see https://bird-bench.github.io/.
