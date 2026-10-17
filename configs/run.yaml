@@ -1,6 +1,7 @@
 # BIRD dev under data/bird/  (dev.json + dev_databases/)
 data_root: data/bird
-out_dir: results
+# New runs go to runs/ (git-ignored), so the released runs in results/ are not overwritten.
+out_dir: runs
 
 # Each model points at an OpenAI-compatible endpoint.
 # On-prem: start a vLLM server per model, e.g.

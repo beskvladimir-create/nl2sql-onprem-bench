@@ -1,3 +1,5 @@
+> HISTORICAL (preprint / v0.2.0): superseded by release v0.3.0; numbers below use the old multiset scoring on read-write databases and must not be cited. See the top-level README.
+
 # Journal upgrade — second model family, embedding linker, real cost, significance
 
 BIRD dev (n=1534), Execution Accuracy, greedy temp 0, concurrency 64, vLLM. Qwen2.5-Coder on A100/L40S; CodeLlama-Instruct on A100. Matched protocol, existing Qwen numbers unchanged.

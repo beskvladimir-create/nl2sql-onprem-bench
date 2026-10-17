@@ -75,3 +75,24 @@ def test_extract_sql():
     assert extract_sql("```sql\nSELECT 1;\n```") == "SELECT 1"
     assert extract_sql("Here you go: SELECT a FROM t") == "SELECT a FROM t"
     assert extract_sql("WITH x AS (SELECT 1) SELECT * FROM x").startswith("WITH")
+
+
+def test_extract_sql_reasoning_prose():
+    txt = "Let me check with the schema first.\n```sql\nSELECT a FROM t;\n```"
+    assert extract_sql(txt) == "SELECT a FROM t"
+    assert extract_sql("SELECT n FROM t WHERE c LIKE '%with %'").startswith("SELECT")
+
+
+def test_databases_are_read_only(tmp_path):
+    import sqlite3
+    from nl2sql_bench.evaluator import _exec, execution_accuracy
+    db = tmp_path / "a.sqlite"
+    c = sqlite3.connect(db)
+    c.execute("create table t(a)")
+    c.execute("insert into t values (1),(1)")
+    c.commit()
+    c.close()
+    assert _exec(str(db), "ALTER TABLE t DROP COLUMN a", 5) is None   # write refused
+    assert _exec(str(db), "SELECT a FROM t", 5) == [(1,), (1,)]       # db unchanged
+    # official BIRD semantics: set equality, so duplicates do not matter
+    assert execution_accuracy(str(db), "SELECT DISTINCT a FROM t", "SELECT a FROM t")[0]

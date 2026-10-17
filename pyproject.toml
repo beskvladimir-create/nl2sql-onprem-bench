@@ -1,7 +1,7 @@
 [project]
 name = "nl2sql-onprem-bench"
-version = "0.1.0"
-description = "Honest, reproducible benchmark of on-prem open-weight LLMs for Text-to-SQL"
+version = "0.3.0"
+description = "Benchmark harness, predictions and analysis for self-hosted open-weight LLMs on Text-to-SQL (BIRD dev)"
 requires-python = ">=3.10"
 dependencies = [
     "openai>=1.30",        # OpenAI-compatible client for vLLM endpoint
@@ -14,6 +14,8 @@ dependencies = [
 dev = ["pytest>=8.0"]
 # retrieval-based schema linker (link_emb stages); heavy, install on the GPU box
 emb = ["sentence-transformers>=2.7", "numpy>=1.24"]
+# analysis/paper_numbers.py, analysis/make_figures.py (recompute the paper from results/)
+analysis = ["numpy>=1.24", "pandas>=2.0", "scipy>=1.11", "matplotlib>=3.8", "pillow>=10.0"]
 
 [build-system]
 requires = ["hatchling"]

@@ -46,7 +46,7 @@ def main() -> None:
         cfg = yaml.safe_load(f)
     m = cfg["models"][args.model]
     data_root = cfg["data_root"]
-    out_dir = cfg.get("out_dir", "results")
+    out_dir = cfg.get("out_dir", "runs")  # never the released results/
     concurrency = args.concurrency or m.get("concurrency") or cfg.get("concurrency", 32)
 
     client = ModelClient(

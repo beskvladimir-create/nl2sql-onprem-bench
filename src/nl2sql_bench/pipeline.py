@@ -18,25 +18,34 @@ from dataclasses import dataclass, field
 
 from func_timeout import FunctionTimedOut, func_timeout
 
-from .evaluator import _exec
+from .evaluator import _exec, connect_ro
 from .model_client import ModelClient
 from .schema import link_schema, link_schema_emb, serialize_schema
 
 _SQL_BLOCK = re.compile(r"```(?:sql)?\s*(.*?)```", re.DOTALL | re.IGNORECASE)
 
 
+_SQL_START = re.compile(r"^\s*(with|select)\b", re.IGNORECASE | re.MULTILINE)
+# inline fallback: a CTE header ("WITH name AS (") or a SELECT keyword
+_SQL_INLINE = re.compile(r"\b(with\s+\w+\s+as\s*\(|select\b)", re.IGNORECASE)
+
+
 def extract_sql(text: str) -> str:
-    """Pull the SQL out of a model reply (fenced block if present, else best line)."""
-    m = _SQL_BLOCK.search(text)
-    cand = m.group(1) if m else text
-    cand = cand.strip().rstrip(";").strip()
-    # If the model prepended prose, keep from the first SELECT/WITH.
-    low = cand.lower()
-    for kw in ("with ", "select "):
-        i = low.find(kw)
-        if i != -1:
-            return cand[i:].strip()
-    return cand
+    """Pull the SQL out of a model reply.
+
+    Uses the LAST fenced block (models that reason first put the answer last);
+    without a fence, starts at the first line that begins with SELECT or WITH,
+    else at the first SELECT keyword or CTE header ("WITH name AS (").
+    Versions <= 0.1.x searched for the substring "with " before "select ", which
+    could start the query inside prose or a string literal.
+    """
+    blocks = _SQL_BLOCK.findall(text)
+    cand = blocks[-1] if blocks else text
+    cand = cand.strip()
+    m = _SQL_START.search(cand) or _SQL_INLINE.search(cand)
+    if m:
+        cand = cand[m.start(1):]
+    return cand.strip().rstrip(";").strip()
 
 
 def _prompt(schema: str, question: str, evidence: str) -> str:
@@ -110,7 +119,7 @@ class Recipe:
         self.usage.exec_calls += 1
 
         def _try() -> None:
-            conn = sqlite3.connect(db_path)
+            conn = connect_ro(db_path)
             try:
                 conn.execute(sql).fetchall()
             finally:

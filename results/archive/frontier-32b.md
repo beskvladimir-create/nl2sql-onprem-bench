@@ -1,3 +1,5 @@
+> HISTORICAL (preprint / v0.2.0): superseded by release v0.3.0; numbers below use the old multiset scoring on read-write databases and must not be cited. See the top-level README.
+
 # Accuracy frontier — Qwen2.5-Coder-32B on BIRD dev (full, n=1534)
 
 A100-80GB, vLLM 0.11.1, torch 2.9.0+cu126, greedy (temp 0), concurrency 64.

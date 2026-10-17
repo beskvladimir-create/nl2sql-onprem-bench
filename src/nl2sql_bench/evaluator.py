@@ -1,9 +1,15 @@
 """Execution Accuracy (EX), BIRD-style.
 
 EX = 1 iff the result set of the predicted SQL equals the result set of the gold
-SQL when both run against the same sqlite db. Order-insensitive set comparison,
-matching the official BIRD evaluator semantics. Execution is time-bounded so a
-runaway predicted query cannot hang the run.
+SQL when both run against the same sqlite db. The comparison is
+set(pred_rows) == set(gold_rows), exactly as in the official BIRD evaluator
+(versions up to 0.1.x of this harness compared sorted multisets of row reprs,
+which is stricter; `result_multiset_match` keeps that comparison for audits).
+
+Databases are opened READ-ONLY: model-generated DDL/DML (e.g. ALTER TABLE ...
+DROP COLUMN) must never change the benchmark databases. Versions up to 0.1.x
+opened them read-write, so DDL emitted by a model persisted across examples.
+Execution is time-bounded so a runaway predicted query cannot hang the run.
 """
 from __future__ import annotations
 
@@ -12,8 +18,13 @@ import sqlite3
 from func_timeout import FunctionTimedOut, func_timeout
 
 
+def connect_ro(db_path: str) -> sqlite3.Connection:
+    """Open a BIRD sqlite database read-only (writes raise sqlite3.OperationalError)."""
+    return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, check_same_thread=False)
+
+
 def _run(db_path: str, sql: str) -> list[tuple]:
-    conn = sqlite3.connect(db_path)
+    conn = connect_ro(db_path)
     try:
         cur = conn.execute(sql)
         return cur.fetchall()
@@ -32,7 +43,12 @@ def _exec(db_path: str, sql: str, timeout: float) -> list[tuple] | None:
 
 
 def result_set_match(pred_rows: list[tuple], gold_rows: list[tuple]) -> bool:
-    # Order-insensitive multiset comparison (BIRD compares set equality of rows).
+    """Official BIRD semantics: set equality of result rows."""
+    return set(pred_rows) == set(gold_rows)
+
+
+def result_multiset_match(pred_rows: list[tuple], gold_rows: list[tuple]) -> bool:
+    """Stricter comparison used by harness versions <= 0.1.x (kept for audits)."""
     return sorted(map(repr, pred_rows)) == sorted(map(repr, gold_rows))
 
 

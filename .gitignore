@@ -9,5 +9,7 @@ venv/
 .pytest_cache/
 # BIRD data is not redistributed here (download from bird-bench.github.io)
 data/bird/
+# new harness runs (configs/run.yaml out_dir); results/ holds the released runs
+runs/
 *.sqlite
 # results/*.jsonl and *.summary.json ARE tracked (committed predictions)

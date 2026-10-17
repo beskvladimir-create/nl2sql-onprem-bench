@@ -1,0 +1,1 @@
+Historical notes from the preprint and v0.2.0 (multiset scoring, read-write databases, truncated FP8 API arm); their numbers and claims are superseded by release v0.3.0, see the top-level README and `results/paper/`.

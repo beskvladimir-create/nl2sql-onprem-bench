@@ -1,0 +1,11 @@
+run,n,timed_out_first_pass,retry_files,still_runtime_error,ex_first_pass,ex_merged
+codellama-13b-clean.base,1534,24,1,0,26.27,26.27
+codellama-13b-clean.correct,1534,331,3,1,29.2,30.64
+codellama-13b-clean.link,1534,19,1,0,26.14,26.34
+codellama-13b-clean.link_correct,1534,328,2,0,27.9,29.92
+codellama-13b-clean.link_emb,1534,20,1,0,25.62,25.68
+codellama-7b-clean.base,1534,16,1,0,23.73,23.73
+codellama-7b-clean.correct,1534,49,1,0,27.12,27.12
+codellama-7b-clean.link,1534,7,1,0,25.42,25.42
+codellama-7b-clean.link_correct,1534,28,1,0,28.16,28.16
+codellama-7b-clean.link_emb,1534,10,1,0,22.62,22.62

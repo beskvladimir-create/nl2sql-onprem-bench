@@ -1,15 +1,23 @@
 """Schema serialization + lightweight schema linking.
 
 `serialize_schema` renders a compact CREATE-style view of the db for the prompt.
-`link_schema` is the recipe's schema-linking step: keep only tables/columns whose
-names overlap the question/evidence tokens (plus their primary/foreign keys), to
-cut prompt size and distractors on wide databases. Deliberately simple and
-model-agnostic — the ablation measures how much this lexical filter alone buys.
+`link_schema` is the recipe's lexical schema-linking step: keep a whole table (all of
+its columns) if any word-level sub-token of its name or of any of its column names
+appears in the question or evidence. There is no primary/foreign-key closure and no
+column pruning. If nothing matches, the full schema is kept. Deliberately simple and
+model-agnostic: the ablation measures how much this lexical filter alone buys.
+`link_schema_emb` keeps the top-k tables by embedding similarity (all tables if the
+database has at most k).
 """
 from __future__ import annotations
 
 import re
 import sqlite3
+import threading
+
+
+def _connect_ro(db_path: str) -> sqlite3.Connection:
+    return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
 
 
 def _tables(conn: sqlite3.Connection) -> dict[str, list[str]]:
@@ -23,7 +31,7 @@ def _tables(conn: sqlite3.Connection) -> dict[str, list[str]]:
 
 
 def serialize_schema(db_path: str, tables: list[str] | None = None) -> str:
-    conn = sqlite3.connect(db_path)
+    conn = _connect_ro(db_path)
     try:
         schema = _tables(conn)
     finally:
@@ -50,7 +58,7 @@ def link_schema(db_path: str, question: str, evidence: str = "") -> list[str]:
     against single question tokens never matches multi-word columns and prunes
     away the very table that holds the answer.
     """
-    conn = sqlite3.connect(db_path)
+    conn = _connect_ro(db_path)
     try:
         schema = _tables(conn)
     finally:
@@ -74,14 +82,16 @@ def link_schema(db_path: str, question: str, evidence: str = "") -> list[str]:
 # are imported lazily so the rest of the harness runs without them.
 
 _EMB_MODEL = None
+_EMB_LOCK = threading.Lock()  # one load / one encode at a time across worker threads
 _EMB_CACHE: dict[str, tuple] = {}  # db_path -> (table_names, table_matrix)
 
 
 def _get_embedder(model_name: str = "all-MiniLM-L6-v2"):
     global _EMB_MODEL
-    if _EMB_MODEL is None:
-        from sentence_transformers import SentenceTransformer
-        _EMB_MODEL = SentenceTransformer(model_name)
+    with _EMB_LOCK:
+        if _EMB_MODEL is None:
+            from sentence_transformers import SentenceTransformer
+            _EMB_MODEL = SentenceTransformer(model_name)
     return _EMB_MODEL
 
 
@@ -94,14 +104,16 @@ def _db_table_embeddings(db_path: str, model_name: str):
     if db_path in _EMB_CACHE:
         return _EMB_CACHE[db_path]
     import numpy as np
-    conn = sqlite3.connect(db_path)
+    model = _get_embedder(model_name)
+    conn = _connect_ro(db_path)
     try:
         schema = _tables(conn)
     finally:
         conn.close()
     names = list(schema.keys())
     docs = [_table_doc(t, schema[t]) for t in names]
-    emb = _get_embedder(model_name).encode(docs, normalize_embeddings=True)
+    with _EMB_LOCK:
+        emb = model.encode(docs, normalize_embeddings=True)
     emb = np.asarray(emb, dtype="float32")
     _EMB_CACHE[db_path] = (names, emb)
     return names, emb
@@ -116,9 +128,9 @@ def link_schema_emb(
     names, emb = _db_table_embeddings(db_path, model_name)
     if len(names) <= k:
         return names
-    q = _get_embedder(model_name).encode(
-        [f"{question} {evidence}".strip()], normalize_embeddings=True
-    )
+    model = _get_embedder(model_name)
+    with _EMB_LOCK:
+        q = model.encode([f"{question} {evidence}".strip()], normalize_embeddings=True)
     q = np.asarray(q, dtype="float32")[0]
     sims = emb @ q  # cosine (both already normalized)
     idx = np.argsort(-sims)[:k]

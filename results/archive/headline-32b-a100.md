@@ -1,3 +1,5 @@
+> HISTORICAL (preprint / v0.2.0): superseded by release v0.3.0; numbers below use the old multiset scoring on read-write databases and must not be cited. See the top-level README.
+
 # Headline — Qwen2.5-Coder-32B-Instruct on BIRD dev (full, 1534)
 
 Hardware: 1× A100-SXM4-80GB (RunPod), vLLM 0.11.1, torch 2.9.0+cu126 (driver 565.57 / CUDA 12.7).

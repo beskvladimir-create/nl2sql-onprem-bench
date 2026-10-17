@@ -1,0 +1,23 @@
+{
+  "model": "codellama/CodeLlama-7b-Instruct-hf",
+  "n": 1534,
+  "ex_accuracy": 0.2816,
+  "config": {
+    "schema_link": true,
+    "schema_link_emb": false,
+    "emb_top_k": 5,
+    "self_correct": true,
+    "self_consistency": false
+  },
+  "wall_s": 1653.38,
+  "queries_per_s": 0.928,
+  "mean_table_recall": 0.9401,
+  "concurrency": 64,
+  "results_file": "/kaggle/working/codellama_rerun/codellama-7b-clean.link_correct.jsonl",
+  "gpu": "2x Tesla T4",
+  "dtype": "float16",
+  "tp": 2,
+  "max_tokens": 1024,
+  "db_mode": "read-only",
+  "comparison": "set (official BIRD)"
+}

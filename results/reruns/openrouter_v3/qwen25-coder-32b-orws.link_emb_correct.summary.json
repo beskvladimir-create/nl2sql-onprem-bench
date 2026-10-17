@@ -1,0 +1,28 @@
+{
+  "model": "qwen/qwen-2.5-coder-32b-instruct",
+  "n": 1534,
+  "ex_accuracy": 0.5248,
+  "config": {
+    "schema_link": false,
+    "schema_link_emb": true,
+    "emb_top_k": 6,
+    "self_correct": true,
+    "self_consistency": false
+  },
+  "wall_s": 388.05,
+  "queries_per_s": 3.953,
+  "mean_table_recall": 0.9653,
+  "concurrency": 16,
+  "results_file": "/kaggle/working/sql_rerun_ws/qwen25-coder-32b-orws.link_emb_correct.jsonl",
+  "providers": {
+    "Cloudflare": 1860
+  },
+  "finish_reasons": {
+    "stop": 1860
+  },
+  "ws_repairs": {
+    "calls": 1860,
+    "repaired": 0
+  },
+  "max_tokens": 4096
+}
