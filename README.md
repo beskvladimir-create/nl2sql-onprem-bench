@@ -367,6 +367,14 @@ Code and data (see also `CITATION.cff`):
 Author: Vladimir Beskorovainyi, Besk Tech (ORCID 0009-0004-7005-6242). The DOI above is the
 concept DOI and resolves to the latest archived release.
 
+## Articles based on this benchmark
+
+- [What Is an AI Agent, and How Often Is It Right](https://besk.tech/articles/what-is-an-ai-agent):
+  what the self-correction loop is worth on the 1534 questions, and why 640 of the 672 wrong
+  answers ran without an error.
+- [Как создать ИИ-агента и что в нём действительно работает](https://besk.tech/ru/articles/kak-sozdat-ii-agenta)
+  (in Russian): the recipe components measured one at a time.
+
 ## License and contribution
 
 MIT (see `LICENSE`). The license covers the harness, scripts and result files in this
